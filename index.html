@@ -1914,10 +1914,18 @@ async function applyPreview(){
   setStatus('обновляю…');
   try {
     const state = await collectState();
+    
+    // Обновляем окно предпросмотра
     const previewHtml = buildGameHtml(state, true, currentPreviewView);
     if($('preview')) $('preview').srcdoc = previewHtml;
+    
+    // Генерируем финальный код игры
     const exportHtml = buildGameHtml(state, false, 'screen');
-    const iframeCode = `<iframe style="width:100%;height:100%;border:0" srcdoc='${escForSrcdoc(exportHtml)}'></iframe>`;
+    
+    // КОДИРОВАНИЕ В BASE64 ДЛЯ ИДЕАЛЬНОЙ РАБОТЫ В GENIALLY
+    const base64Data = btoa(unescape(encodeURIComponent(exportHtml)));
+    const iframeCode = `<iframe style="width:100%;height:100%;border:0;background:transparent;" src="data:text/html;base64,${base64Data}"></iframe>`;
+    
     if($('iframeOut')) $('iframeOut').value = iframeCode;
     setStatus('готово');
   } catch(e) { console.error(e); setStatus('ошибка'); }
