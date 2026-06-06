@@ -21,6 +21,7 @@
     --th-gears:   #00FA9A; 
     --th-screens: #00FFFF; 
     --th-audio:   #DDA0DD; 
+    --th-code:    #87CEFA; 
 
     /* ЭСТЕТИКА: Оттенки для мелкого текста */
     --lbl-tasks:   #FFE4B5;
@@ -28,6 +29,7 @@
     --lbl-gears:   #98FB98;
     --lbl-screens: #1E90FF; 
     --lbl-audio:   #E6E6FA;
+    --lbl-code:    #E0FFFF;
   }
   html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--txt); overflow:hidden;}
   *{box-sizing:border-box;}
@@ -67,6 +69,7 @@
   .tabBtn[data-tab="gears"].active   { border-color: var(--th-gears); color: var(--th-gears); box-shadow: 0 0 16px rgba(0,250,154,0.25); background: rgba(0,250,154,0.1); }
   .tabBtn[data-tab="screens"].active { border-color: var(--th-screens); color: var(--th-screens); box-shadow: 0 0 16px rgba(0,255,255,0.25); background: rgba(0,255,255,0.1); }
   .tabBtn[data-tab="audio"].active   { border-color: var(--th-audio); color: var(--th-audio); box-shadow: 0 0 16px rgba(221,160,221,0.25); background: rgba(221,160,221,0.1); }
+  .tabBtn[data-tab="code"].active    { border-color: var(--th-code); color: var(--th-code); box-shadow: 0 0 16px rgba(135,206,250,0.25); background: rgba(135,206,250,0.1); }
 
   .content{padding:0 18px 18px; overflow:auto; height:100%;}
   .section{display:none; padding-bottom:20px;}
@@ -86,6 +89,7 @@
   #sec_gears h3   { color: var(--th-gears); text-shadow: 0 0 12px rgba(0,250,154,0.5); }
   #sec_screens h3 { color: var(--th-screens); text-shadow: 0 0 12px rgba(0,255,255,0.5); }
   #sec_audio h3   { color: var(--th-audio); text-shadow: 0 0 12px rgba(221,160,221,0.5); }
+  #sec_code h3    { color: var(--th-code); text-shadow: 0 0 12px rgba(135,206,250,0.5); }
 
   label { display:block; font-size:14px; font-weight:700; margin-bottom:8px; letter-spacing:.2px; }
   #sec_tasks label   { color: var(--lbl-tasks); text-shadow: 0 0 8px rgba(255,228,181,0.3); }
@@ -194,6 +198,7 @@
       <button class="tabBtn" data-tab="gears">Шестерёнки</button>
       <button class="tabBtn" data-tab="screens">Заставки</button>
       <button class="tabBtn" data-tab="audio">Аудио</button>
+      <button class="tabBtn" data-tab="code">Код</button>
     </div>
 
     <div class="content">
@@ -792,8 +797,16 @@
         </div>
       </div>
     </div>
-
-    <textarea id="iframeOut" tabindex="-1" style="position:absolute; width:1px; height:1px; left:-9999px; opacity:0;" aria-hidden="true"></textarea>
+      <div class="section" id="sec_code">
+        <div class="card">
+          <h3>Экспорт игры</h3>
+          <div class="mini" style="margin-bottom: 14px;">В Genially вставляйте скопированный код строго через боковое меню:<br><b>Вставить (Insert) → Другое (Others) → Вставить внешний контент</b></div>
+          <textarea id="iframeOut" readonly spellcheck="false"
+            style="width:100%;height:44vh;min-height:280px;resize:vertical;
+                   background:rgba(0,0,0,.45);border:1px solid rgba(135,206,250,.4);
+                   border-radius:12px;color:#eaffff;padding:14px;font-size:13px;line-height:1.3;"></textarea>
+        </div>
+      </div>
 
     <div class="btnRow">
       <button class="btn primary" id="applyBtn">Обновить превью</button>
@@ -1896,7 +1909,7 @@ async function collectState(){
 }
 
 /* ===========================
-   Apply / Preview / Sync Copy
+   Apply / Preview / Copy / Download
 =========================== */
 async function applyPreview(){
   setStatus('обновляю…');
@@ -1907,57 +1920,48 @@ async function applyPreview(){
     const previewHtml = buildGameHtml(state, true, currentPreviewView);
     if($('preview')) $('preview').srcdoc = previewHtml;
     
-    // Генерируем финальный код игры в фоне
+    // Генерируем финальный код игры
     const exportHtml = buildGameHtml(state, false, 'screen');
-    const base64Data = btoa(unescape(encodeURIComponent(exportHtml)));
-    const iframeCode = `<iframe style="width:100%;height:100%;border:0;background:transparent;min-height:650px;" allow="autoplay; fullscreen" src="data:text/html;base64,${base64Data}"></iframe>`;
     
-    // Скрытно сохраняем код
+    // Кодирование в Base64 для надежности в Genially
+    const base64Data = btoa(unescape(encodeURIComponent(exportHtml)));
+    const iframeCode = `<iframe style="width:100%;height:100%;border:0;background:transparent;" src="data:text/html;base64,${base64Data}"></iframe>`;
+    
     if($('iframeOut')) $('iframeOut').value = iframeCode;
     setStatus('готово');
   } catch(e) { console.error(e); setStatus('ошибка'); }
 }
 
-// Новая МОМЕНТАЛЬНАЯ функция копирования
-if($('copyBtn')) {
-  $('copyBtn').addEventListener('click', () => {
-    const ta = $('iframeOut');
-    if(!ta || !ta.value) {
-      alert('Сначала дождитесь обновления превью!');
-      return;
-    }
+// Надежная функция копирования (без блокировок)
+if($('copyBtn')) $('copyBtn').addEventListener('click', ()=>{
+  const ta = $('iframeOut');
+  if(!ta) return;
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, 9999999);
+  
+  try {
+    const successful = document.execCommand('copy');
+    if(successful) { setStatus('скопировано ✅'); return; }
+  } catch(err) {}
+  
+  navigator.clipboard.writeText(ta.value)
+    .then(() => setStatus('скопировано ✅'))
+    .catch(() => alert('Браузер заблокировал копирование. Код выделен — нажмите Ctrl+C на клавиатуре!'));
+});
 
-    ta.focus();
-    ta.select();
-    ta.setSelectionRange(0, 9999999);
-
-    let copied = false;
-    try {
-      copied = document.execCommand('copy');
-    } catch(e) {}
-
-    if(copied) {
-      setStatus('скопировано ✅');
-    } else {
-      if(navigator.clipboard) {
-        navigator.clipboard.writeText(ta.value)
-          .then(() => setStatus('скопировано ✅'))
-          .catch(() => alert('Ваш браузер блокирует копирование!'));
-      }
-    }
-  });
-}
-
-// Функция: Скачать как HTML
+// Новая функция: Скачать как HTML
 if($('downloadBtn')) $('downloadBtn').addEventListener('click', async ()=>{
   setStatus('сборка файла...');
   try {
     const state = await collectState();
     const exportHtml = buildGameHtml(state, false, 'screen');
     
+    // Создаем виртуальный файл
     const blob = new Blob([exportHtml], {type: 'text/html;charset=utf-8'});
     const url = URL.createObjectURL(blob);
     
+    // Скачиваем его
     const a = document.createElement('a');
     a.href = url;
     a.download = 'bootcamp-game.html';
