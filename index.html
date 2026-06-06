@@ -21,7 +21,6 @@
     --th-gears:   #00FA9A; 
     --th-screens: #00FFFF; 
     --th-audio:   #DDA0DD; 
-    --th-code:    #87CEFA; 
 
     /* ЭСТЕТИКА: Оттенки для мелкого текста */
     --lbl-tasks:   #FFE4B5;
@@ -29,7 +28,6 @@
     --lbl-gears:   #98FB98;
     --lbl-screens: #1E90FF; 
     --lbl-audio:   #E6E6FA;
-    --lbl-code:    #E0FFFF;
   }
   html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--txt); overflow:hidden;}
   *{box-sizing:border-box;}
@@ -69,7 +67,6 @@
   .tabBtn[data-tab="gears"].active   { border-color: var(--th-gears); color: var(--th-gears); box-shadow: 0 0 16px rgba(0,250,154,0.25); background: rgba(0,250,154,0.1); }
   .tabBtn[data-tab="screens"].active { border-color: var(--th-screens); color: var(--th-screens); box-shadow: 0 0 16px rgba(0,255,255,0.25); background: rgba(0,255,255,0.1); }
   .tabBtn[data-tab="audio"].active   { border-color: var(--th-audio); color: var(--th-audio); box-shadow: 0 0 16px rgba(221,160,221,0.25); background: rgba(221,160,221,0.1); }
-  .tabBtn[data-tab="code"].active    { border-color: var(--th-code); color: var(--th-code); box-shadow: 0 0 16px rgba(135,206,250,0.25); background: rgba(135,206,250,0.1); }
 
   .content{padding:0 18px 18px; overflow:auto; height:100%;}
   .section{display:none; padding-bottom:20px;}
@@ -89,7 +86,6 @@
   #sec_gears h3   { color: var(--th-gears); text-shadow: 0 0 12px rgba(0,250,154,0.5); }
   #sec_screens h3 { color: var(--th-screens); text-shadow: 0 0 12px rgba(0,255,255,0.5); }
   #sec_audio h3   { color: var(--th-audio); text-shadow: 0 0 12px rgba(221,160,221,0.5); }
-  #sec_code h3    { color: var(--th-code); text-shadow: 0 0 12px rgba(135,206,250,0.5); }
 
   label { display:block; font-size:14px; font-weight:700; margin-bottom:8px; letter-spacing:.2px; }
   #sec_tasks label   { color: var(--lbl-tasks); text-shadow: 0 0 8px rgba(255,228,181,0.3); }
@@ -125,6 +121,8 @@
   .btn.primary{background:rgba(0,255,213,.10);}
   .btn.danger{border-color:rgba(255,43,43,.45); box-shadow:0 0 18px rgba(255,43,43,.10);}
   .btn.danger:hover{border-color:rgba(255,43,43,.85); box-shadow:0 0 26px rgba(255,43,43,.14);}
+  .btn.action{border-color:var(--th-tasks); color:var(--th-tasks); box-shadow:0 0 18px rgba(255,179,71,.15);}
+  .btn.action:hover{border-color:#ffcc80; box-shadow:0 0 26px rgba(255,179,71,.25);}
   
   .right{display:flex; flex-direction:column;}
   .previewTop{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid rgba(0,255,213,.14);}
@@ -174,7 +172,7 @@
         <div class="brandLogo" aria-label="English Bootcamp logo"></div>
         <div class="brandText">
           <div class="t1">Machine Game Editor by English Bootcamp</div>
-          <div class="t2">Настройка → предпросмотр → копирование iframe</div>
+          <div class="t2">Настройка → предпросмотр → экспорт</div>
         </div>
       </div>
     </div>
@@ -196,7 +194,6 @@
       <button class="tabBtn" data-tab="gears">Шестерёнки</button>
       <button class="tabBtn" data-tab="screens">Заставки</button>
       <button class="tabBtn" data-tab="audio">Аудио</button>
-      <button class="tabBtn" data-tab="code">Код</button>
     </div>
 
     <div class="content">
@@ -214,7 +211,6 @@
           <div class="help" id="tasksWarn" style="display:none; margin-top:8px; color:rgba(255,180,180,.95);"></div>
        </div>
 
-       <!-- НОВЫЙ БЛОК: МАТЕМАТИКА -->
        <div class="card" style="border-color: rgba(255,179,71,0.4); background: rgba(255,179,71,0.02);">
          <h3 style="color: var(--th-tasks);">Математические формулы (LaTeX)</h3>
 
@@ -796,21 +792,14 @@
         </div>
       </div>
     </div>
-      <div class="section" id="sec_code">
-        <div class="card">
-          <h3>iframe для Genially</h3>
-          <div class="mini">Нажми «Скопировать iframe…». Если автокопирование заблокировано, код выделится — нажми Ctrl+C. (Пунктирная рамка не копируется!)</div>
-          <textarea id="iframeOut" readonly spellcheck="false"
-            style="width:100%;height:44vh;min-height:280px;resize:vertical;
-                   background:rgba(0,0,0,.45);border:1px solid rgba(135,206,250,.4);
-                   border-radius:12px;color:#eaffff;padding:14px;font-size:13px;line-height:1.3;"></textarea>
-        </div>
-      </div>
+
+    <textarea id="iframeOut" tabindex="-1" style="position:absolute; width:1px; height:1px; left:-9999px; opacity:0;" aria-hidden="true"></textarea>
 
     <div class="btnRow">
       <button class="btn primary" id="applyBtn">Обновить превью</button>
-      <button class="btn" id="copyBtn">Скопировать iframe для Genially</button>
-      <button class="btn danger" id="resetBtn">Сбросить к базовым</button>
+      <button class="btn action" id="copyBtn">Скопировать код для Genially</button>
+      <button class="btn action" id="downloadBtn">Скачать как HTML-файл</button>
+      <button class="btn danger" id="resetBtn">Сбросить</button>
     </div>
 
     <div class="footer">
@@ -992,7 +981,7 @@ document.querySelectorAll('.ptBtn').forEach(btn => {
 });
 
 /* ===========================
-   Defaults (Обновлены под $...$)
+   Defaults 
 =========================== */
 const defaultTasks = `I ___ tired. | am | is | are
 He___books every day. | reads | read | reading
@@ -1021,7 +1010,6 @@ function updateCountsUI(){
 updateCountsUI();
 $('taskCount')?.addEventListener('input', updateCountsUI);
 $('taskCount')?.addEventListener('change', updateCountsUI);
-
 
 /* ===========================
    Глобальное состояние позиций
@@ -1105,7 +1093,7 @@ function updateTasksHintAndValidate(){
 
   let msg = "";
   if(bad.length) msg += `⚠️ Недостаточно вариантов в строках: <b>${linesBad}</b> (${partsTxt}).`;
-  if(extra.length) msg += (msg ? "<br>" : "") + `ℹ️ Лишние варианты (будут обрезаны) в строках: <b>${linesExtra}</b>.`;
+  if(extra.length) msg += (msg ? "<br>" : "") + `ℹ️ Лишние варианты в строках: <b>${linesExtra}</b>.`;
   warn.style.display = "block";
   warn.innerHTML = msg;
 }
@@ -1908,30 +1896,78 @@ async function collectState(){
 }
 
 /* ===========================
-   Apply / Preview / Copy
+   Apply / Preview / Sync Copy
 =========================== */
 async function applyPreview(){
   setStatus('обновляю…');
   try {
     const state = await collectState();
+    
+    // Обновляем окно предпросмотра
     const previewHtml = buildGameHtml(state, true, currentPreviewView);
     if($('preview')) $('preview').srcdoc = previewHtml;
+    
+    // Генерируем финальный код игры в фоне
     const exportHtml = buildGameHtml(state, false, 'screen');
-    const iframeCode = `<iframe style="width:100%;height:100%;border:0" srcdoc='${escForSrcdoc(exportHtml)}'></iframe>`;
+    const base64Data = btoa(unescape(encodeURIComponent(exportHtml)));
+    const iframeCode = `<iframe style="width:100%;height:100%;border:0;background:transparent;min-height:650px;" allow="autoplay; fullscreen" src="data:text/html;base64,${base64Data}"></iframe>`;
+    
+    // Скрытно сохраняем код
     if($('iframeOut')) $('iframeOut').value = iframeCode;
     setStatus('готово');
   } catch(e) { console.error(e); setStatus('ошибка'); }
 }
 
-if($('applyBtn')) $('applyBtn').addEventListener('click', applyPreview);
-if($('copyBtn')) $('copyBtn').addEventListener('click', async ()=>{
-  try{
-    await applyPreview();
-    if($('iframeOut')) { await navigator.clipboard.writeText($('iframeOut').value); setStatus('скопировано ✅'); }
-   }catch(e){
-    const codeTab = document.querySelector('.tabBtn[data-tab="code"]'); if(codeTab) codeTab.click();
-    const ta = $('iframeOut'); if(ta) { ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length); setStatus('выделено → Ctrl+C'); alert("Автокопирование заблокировано. Код выделен — нажмите Ctrl+C."); }
-  }
+// Новая МОМЕНТАЛЬНАЯ функция копирования
+if($('copyBtn')) {
+  $('copyBtn').addEventListener('click', () => {
+    const ta = $('iframeOut');
+    if(!ta || !ta.value) {
+      alert('Сначала дождитесь обновления превью!');
+      return;
+    }
+
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, 9999999);
+
+    let copied = false;
+    try {
+      copied = document.execCommand('copy');
+    } catch(e) {}
+
+    if(copied) {
+      setStatus('скопировано ✅');
+    } else {
+      if(navigator.clipboard) {
+        navigator.clipboard.writeText(ta.value)
+          .then(() => setStatus('скопировано ✅'))
+          .catch(() => alert('Ваш браузер блокирует копирование!'));
+      }
+    }
+  });
+}
+
+// Функция: Скачать как HTML
+if($('downloadBtn')) $('downloadBtn').addEventListener('click', async ()=>{
+  setStatus('сборка файла...');
+  try {
+    const state = await collectState();
+    const exportHtml = buildGameHtml(state, false, 'screen');
+    
+    const blob = new Blob([exportHtml], {type: 'text/html;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bootcamp-game.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    setStatus('скачано 💾');
+  } catch(e) { console.error(e); setStatus('ошибка'); }
 });
 
 if($('resetBtn')) $('resetBtn').addEventListener('click', ()=>{
@@ -1985,35 +2021,35 @@ const translations = {
     langLabel: "Язык интерфейса:", baseParams: "Базовые параметры",
     taskCount: "Кол-во задач:", timePerQ: "Время (сек):", lives: "Жизни:",
     tasksLabel: "Список заданий", applyBtn: "Обновить превью",
-    copyBtn: "Скопировать iframe для Genially", resetBtn: "Сбросить к базовым"
+    copyBtn: "Скопировать код для Genially", resetBtn: "Сбросить к базовым"
   },
   en: {
     tasks: "Tasks", look: "Appearance", gears: "Gears", screens: "Screens",
     langLabel: "Language:", baseParams: "Basic Parameters",
     taskCount: "Tasks count:", timePerQ: "Time per Q (sec):", lives: "Lives:",
     tasksLabel: "Task List", applyBtn: "Update Preview",
-    copyBtn: "Copy iframe for Genially", resetBtn: "Reset to Default"
+    copyBtn: "Copy code for Genially", resetBtn: "Reset to Default"
   },
   de: {
     tasks: "Aufgaben", look: "Aussehen", gears: "Zahnräder", screens: "Bildschirme",
     langLabel: "Sprache:", baseParams: "Basisparameter",
     taskCount: "Aufgabenanzahl:", timePerQ: "Zeit pro Frage:", lives: "Leben:",
     tasksLabel: "Aufgabenliste", applyBtn: "Vorschau aktualisieren",
-    copyBtn: "Iframe für Genially kopieren", resetBtn: "Auf Standard zurücksetzen"
+    copyBtn: "Code für Genially kopieren", resetBtn: "Auf Standard zurücksetzen"
   },
   fr: {
     tasks: "Tâches", look: "Apparence", gears: "Engrenages", screens: "Écrans",
     langLabel: "Langue:", baseParams: "Paramètres de base",
     taskCount: "Nombre de tâches:", timePerQ: "Temps/question:", lives: "Vies:",
     tasksLabel: "Liste des tâches", applyBtn: "Mettre à jour l'aperçu",
-    copyBtn: "Copier l'iframe pour Genially", resetBtn: "Réinitialiser par défaut"
+    copyBtn: "Copier le code pour Genially", resetBtn: "Réinitialiser par défaut"
   },
   es: {
     tasks: "Tareas", look: "Apariencia", gears: "Engranajes", screens: "Pantallas",
     langLabel: "Idioma:", baseParams: "Parámetros básicos",
     taskCount: "Número de tareas:", timePerQ: "Tiempo/pregunta:", lives: "Vidas:",
     tasksLabel: "Lista de tareas", applyBtn: "Actualizar vista previa",
-    copyBtn: "Copiar iframe para Genially", resetBtn: "Restablecer por defecto"
+    copyBtn: "Copiar código para Genially", resetBtn: "Restablecer por defecto"
   }
 };
 
